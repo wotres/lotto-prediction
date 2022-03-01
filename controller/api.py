@@ -1,7 +1,7 @@
 from flask import Blueprint
 from service import Api
 
-bp = Blueprint('answer', __name__, url_prefix='/api')
+bp = Blueprint('api', __name__, url_prefix='/api')
 
 
 @bp.route('/lotto/data', methods=['GET'])

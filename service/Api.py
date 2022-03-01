@@ -27,4 +27,5 @@ class Api:
 
         with open(f'./data/data_${end_round}.json', 'r') as f:
             json_data = json.load(f)
+
         return json.dumps(json_data, indent="\t").replace('\t', ' ')
