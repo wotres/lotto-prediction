@@ -1,4 +1,5 @@
 import json
+from itertools import combinations
 
 
 class Prediction:
@@ -23,6 +24,63 @@ class Prediction:
 
         self.make_dictionary()
 
+        # todo: 주단위 배치로 처리
+        self.make_candidate()
+        self.candidate_numbers = self.make_candidate()
+
+        self.recommend_numbers = []
+        for nums in self.candidate_numbers:
+            _, possibility = self.calculate_statistics(nums)
+            if possibility > 0:
+                self.recommend_numbers.append([nums, possibility])
+
+        # 후보 번호중 가장 angle 확률이 높게 나온 번호 추출
+        max_value = 0
+        self.max_recommend_numbers = []
+        for i, value in enumerate(self.recommend_numbers):
+            if value[1] >= max_value:
+                max_value = value[1]
+                self.max_recommend_numbers.append(value)
+
+    # 숫자 조합 걸러내기
+    def make_candidate(self):
+        temp = []
+        for i in range(1, 8):
+            temp.append(i)
+        all_numbers = list(combinations(temp, 6))
+        return all_numbers
+        # candidate_numbers = []
+        # for nums in all_numbers:
+        #     # 연속된 숫자 여부
+        #     count1 = 0
+        #     count10 = 0
+        #     count20 = 0
+        #     count30 = 0
+        #
+        #     for num in nums:
+        #         if num < 10:
+        #             count1 += 1
+        #         elif num < 20 and num >= 10:
+        #             count10 += 1
+        #         elif num < 30 and num >= 20:
+        #             count20 += 1
+        #         elif num < 40 and num >= 40:
+        #             count30 += 1
+        #
+        #     # 연속된 숫자 여부
+        #     ex_num = 0
+        #     tf = True
+        #     for num in nums:
+        #         if num - ex_num == 1:
+        #             tf = False
+        #             break
+        #         else:
+        #             ex_num = num
+        #
+        #     # 해당사항을 통과한다면 후보 번호로 추출
+        #     if tf and count1 <= 4 and count10 <= 4 and count20 <= 4 and count30 <= 4:
+        #         candidate_numbers.append(nums)
+
     # nC_2 조합
     def make_dictionary(self):
         for (i, nums) in enumerate(self.lotto_history):
@@ -41,7 +99,7 @@ class Prediction:
     def check(self):
         return self.prediction_dict
 
-    def statistic_calculate(self, expect_nums):
+    def calculate_statistics(self, expect_nums):
         user_prediction_dict = {}
         for i in range(7):
             user_prediction_dict[i] = 0.0
@@ -72,7 +130,8 @@ class Prediction:
         else:
             angle_answer = '번호를 추천'
 
-        return json.dumps({
-            'angle_answer': angle_answer,
-            'angle_possibility': angle_possibility
-        }, ensure_ascii=False).encode('utf8')
+        return angle_answer, angle_possibility
+
+    def recommend(self):
+        return self.max_recommend_numbers
+
